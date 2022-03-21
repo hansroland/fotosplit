@@ -1,0 +1,1 @@
+cabal install --overwrite-policy=always --installdir=$HOME/.local/bin --install-method=copy
