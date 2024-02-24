@@ -33,7 +33,7 @@ import Data.Time
 import Data.Convertible (convert)
 
 import System.Directory (doesDirectoryExist, getDirectoryContents, createDirectoryIfMissing, renamePath)
-import System.FilePath (combine, pathSeparator)
+import System.FilePath (combine, pathSeparator, takeExtension)
 import System.Posix.Types (EpochTime(..))
 import Graphics.Hexif
 import Graphics.Hexif.Api
@@ -62,7 +62,7 @@ fotosplit path = do
       mapM_ pf $ filter filterjpg files
          where
            pf = processFile path
-           filterjpg = isSuffixOf ".JPG" . map toUpper
+           filterjpg = (\ex -> ex `elem` [".JPG", ".JPEG"]) . takeExtension . map toUpper
 
 processFile :: String -> String -> IO()
 processFile dir file = do
