@@ -32,7 +32,8 @@ import Data.Maybe (fromMaybe, fromJust, isJust)
 import Data.Time
 import Data.Convertible (convert)
 
-import System.Directory (doesDirectoryExist, getDirectoryContents, createDirectoryIfMissing, renamePath)
+import System.Directory (doesDirectoryExist, getDirectoryContents, createDirectoryIfMissing,
+         getCurrentDirectory, renamePath)
 import System.FilePath (combine, pathSeparator, takeExtension)
 import System.Posix.Types (EpochTime(..))
 import Graphics.Hexif
@@ -42,24 +43,28 @@ main :: IO()
 main = do
    -- get input arguments
    args <- getArgs
-   if length args /= 1
-      then do
-         putStrLn "usage:\r fotosplit <filePath>\r <filePath> = directory with *.jpg files"
-         exitFailure
-      else do
+   case length args of
+      0 -> do
+         dirPath <- getCurrentDirectory
+         fotosplit dirPath
+      1 -> do
          let dirPath = head args
          exists <- doesDirectoryExist dirPath
          if exists
             then do
                fotosplit dirPath
-               putStrLn "Processing ended"
             else
                putStrLn $ "Dirctory " ++ dirPath ++ " notFound"
+      _ -> do
+         putStrLn "usage:\r fotosplit <filePath>\r <filePath> = directory with *.jpg files"
+         exitFailure
 
 fotosplit :: FilePath -> IO()
 fotosplit path = do
+      putStrLn $ "Processing directory: " <> path
       files <- getDirectoryContents path
       mapM_ pf $ filter filterjpg files
+      putStrLn "Processing ended"
          where
            pf = processFile path
            filterjpg = (\ex -> ex `elem` [".JPG", ".JPEG"]) . takeExtension . map toUpper
